@@ -188,6 +188,10 @@ const toolScopeMap: Record<
     mcp: ['tableau:mcp:knowledge:read'],
     api: new Set(['tableau:knowledge:read']),
   },
+  'query-knowledge-context': {
+    mcp: ['tableau:mcp:knowledge:read'],
+    api: new Set(['tableau:knowledge:read']),
+  },
   'get-knowledge-node': {
     mcp: ['tableau:mcp:knowledge:read'],
     api: new Set(['tableau:knowledge:read']),
