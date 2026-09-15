@@ -31,6 +31,7 @@ import { getListPulseMetricsFromMetricDefinitionIdTool } from './pulse/listMetri
 import { getListPulseMetricsFromMetricIdsTool } from './pulse/listMetricsFromMetricIds/listPulseMetricsFromMetricIds.js';
 import { getListPulseMetricSubscriptionsTool } from './pulse/listMetricSubscriptions/listPulseMetricSubscriptions.js';
 import { getQueryDatasourceTool } from './queryDatasource/queryDatasource.js';
+import { getQueryKnowledgeContextTool } from './queryKnowledgeContext/queryKnowledgeContext.js';
 import { getRecordEventTool } from './recordEvent/recordEvent.js';
 import { getRenderInteractiveVizTool } from './renderInteractiveViz/renderInteractiveViz.js';
 import { getResetConsentTool } from './resetConsent/resetConsent.js';
@@ -68,6 +69,7 @@ export const webToolFactories = [
   getGetKnowledgeLineageTool,
   getGetKnowledgeNodeImpactTool,
   getListSemanticStatementsTool,
+  getQueryKnowledgeContextTool,
   getListUsersTool,
   getUpdateUserTool,
   getQueryDatasourceTool,

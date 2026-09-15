@@ -50,6 +50,7 @@ export const webToolNames = [
   'get-knowledge-lineage',
   'get-knowledge-node-impact',
   'list-knowledge-semantic-contexts',
+  'query-knowledge-context',
 ] as const;
 export type WebToolName = (typeof webToolNames)[number];
 
@@ -120,6 +121,7 @@ export const webToolGroups = {
     'get-knowledge-lineage',
     'get-knowledge-node-impact',
     'list-knowledge-semantic-contexts',
+    'query-knowledge-context',
   ],
 } as const satisfies Record<WebToolGroupName, Array<WebToolName>>;
 
