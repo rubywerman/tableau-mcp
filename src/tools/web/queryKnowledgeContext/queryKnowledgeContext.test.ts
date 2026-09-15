@@ -115,10 +115,40 @@ describe('queryKnowledgeContextTool', () => {
   });
 
   it('marks attached incomplete when the entity is not visible (404)', async () => {
-    mocks.getKnowledgeNode.mockRejectedValue(new Error('404'));
+    mocks.getKnowledgeNode.mockRejectedValue({ isAxiosError: true, response: { status: 404 } });
     const out = payload(await getToolResult({ graphId: 'g1', query: 'AOV of Sales Cloud' }));
     expect(out.entity).toBeNull();
     expect(out.attachedComplete).toBe(false);
+  });
+
+  it('propagates a non-404 entity error instead of masquerading as not-found', async () => {
+    mocks.getKnowledgeNode.mockRejectedValue({ isAxiosError: true, response: { status: 500 } });
+    const result = await getToolResult({ graphId: 'g1', query: 'AOV of Sales Cloud' });
+    expect(result.isError).toBe(true);
+    expect(mocks.getKnowledgeNode).toHaveBeenCalled();
+  });
+
+  it('ranks global preferences by term, not the noisy full query', async () => {
+    const aov = userAuthoredGlobal;
+    const distractor = {
+      id: 'ctx-sc',
+      type: 'SEMANTIC_CONTEXT',
+      name: 'Sales Cloud note',
+      properties: {
+        statements: [{ id: 's3', statement: 'Sales Cloud data refreshes nightly' }],
+        is_global: true,
+        kind: 'statement',
+        source: 'mcp',
+        updated_at: '2026-01-01T00:00:00Z',
+      },
+    };
+    mocks.listSemanticStatements.mockImplementation(async ({ isGlobal }: { isGlobal?: boolean }) =>
+      isGlobal ? [distractor, aov] : [],
+    );
+    const out = payload(
+      await getToolResult({ graphId: 'g1', query: 'what is the AOV of Sales Cloud', term: 'AOV' }),
+    );
+    expect(out.globalPreferences[0].text).toContain('AOV');
   });
 
   it('labels a user-authored global preference as ungated and flags graph-wide scope', async () => {
@@ -126,7 +156,7 @@ describe('queryKnowledgeContextTool', () => {
       isGlobal ? [userAuthoredGlobal] : [],
     );
     const out = payload(await getToolResult({ graphId: 'g1', query: 'AOV' }));
-    const aov = out.businessPreferences.find((p: any) => p.text.includes('AOV'));
+    const aov = out.globalPreferences.find((p: any) => p.text.includes('AOV'));
     expect(aov).toMatchObject({
       subtype: 'user-authored',
       permissionChecked: false,
@@ -140,7 +170,7 @@ describe('queryKnowledgeContextTool', () => {
       isGlobal ? [] : [managedAttached],
     );
     const out = payload(await getToolResult({ graphId: 'g1', query: 'ARR' }));
-    const arr = out.businessPreferences.find((p: any) => p.text.includes('ARR'));
+    const arr = out.attachedPreferences.find((p: any) => p.text.includes('ARR'));
     expect(arr).toMatchObject({
       subtype: 'tableau-managed',
       permissionChecked: true,
